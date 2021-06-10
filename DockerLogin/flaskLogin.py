@@ -28,20 +28,10 @@ def is_safe_url(target):
 
 
 class User(UserMixin):
-    def __init__(self, id, name, fullname):
+    def __init__(self, id, token):
         self.id = id
         self.name = name
-        self.fullname = fullname
-        self.dob = "Unknown"
-        self.ssn = "Unknown"
-
-    def set_dob(self, dob):
-        self.dob = dob
-        return self
-
-    def set_ssn(self, ssn):
-        self.ssn = ssn
-        return self
+        self.token = token
 
 
 USERS = {
@@ -96,7 +86,7 @@ def secret():
 def login():
     form = LoginForm()
     if form.validate_on_submit() and request.method == "POST" and "username" in request.form:
-        username = request.form["username"]
+        username = request.form["username"] #username keyError FIXME
         if username in USER_NAMES:
             remember = request.form.get("remember", "false") == "true"
             if login_user(USER_NAMES[username], remember=remember):

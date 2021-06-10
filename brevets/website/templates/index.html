@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+
+<html>
+<script
+          src="https://code.jquery.com/jquery-3.6.0.min.js"
+          integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4="
+            crossorigin="anonymous"></script>
+  
+  <div class="row">
+    <h1>
+      Hi, {{ current_user.username }}!
+    </h1>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+         {{ message }}
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <a href="/logout">Logout</a>
+  </div>
+
+
+	<div class="col-md-6">
+		<button id="listAll">List All</button>
+		<button id="listOpenOnly">List Open Only</button>
+		<button id="listCloseOnly">List Close Only</button>
+	</div>
+    <br>
+	<div class="col-md-2">
+    	<label>Representation</label>
+    	<select name="representation" id="json_or_csv">
+        	<option value="json">JSON</option>
+        	<option value="csv">CSV</option>
+    	</select>
+   </div>
+   <br>
+   <label for="top">Top Times:</label>
+   <input type="number" name="top" id="top">
+   <br>
+
+   <script>
+   		var SCRIPT_ROOT = {{ request.script_root|tojson|safe }};  
+      $("#listAll").click(
+        function(e){
+          console.log("List All clicked!");
+          var top = $("input[name='top']").val();
+          //console.log("top: ", top)
+          var jsonCsv = document.getElementById('json_or_csv').value
+          console.log(jsonCsv)
+          $.getJSON((SCRIPT_ROOT+"/listAll"), {top: top, json_or_csv: jsonCsv}).done(function(info)
+            {
+              document.write(info.result);
+            });
+        });
+   		$("#listOpenOnly").click(
+   			function(e){
+   				console.log("List Open Only clicked!");
+   				var top = $("input[name='top']").val();
+   				console.log(top)
+   				var jsonCsv = document.getElementById('json_or_csv').value
+   				console.log(jsonCsv)
+   				$.getJSON((SCRIPT_ROOT+"/listOpenOnly"), {top: top, json_or_csv: jsonCsv}).done(function(info)
+   					{
+              document.write(info.result);
+   					});
+   			});
+      $("#listCloseOnly").click(
+        function(e){
+          console.log("List Close Only clicked!");
+          var top = $("input[name='top']").val();
+          console.log(top)
+          var jsonCsv = document.getElementById('json_or_csv').value
+          console.log(jsonCsv)
+          $.getJSON((SCRIPT_ROOT+"/listCloseOnly"), {top: top, json_or_csv: jsonCsv}).done(function(info)
+            {
+              document.write(info.result);
+            });
+        });
+   </script>>
+</html>

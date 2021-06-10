@@ -1,0 +1,8 @@
+flask
+requests
+pymongo
+Flask
+Flask-Login
+wtforms
+Flask-WTF
+passlib==1.7.1
