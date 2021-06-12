@@ -57,7 +57,7 @@ def submit():
                 'open': op,
                 'close': cl
             }
-            db.tododb.insert_one(item_doc)
+            db.brevets.insert_one(item_doc)
         return flask.jsonify(a=1)
     except Exception as e:
         logging.error(e, exc_info=True)

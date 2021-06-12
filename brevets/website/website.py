@@ -9,7 +9,6 @@ from flask_login import (LoginManager, current_user, login_required,
                          confirm_login, fresh_login_required)
 from flask_wtf import FlaskForm as Form
 from wtforms import BooleanField, StringField, PasswordField, SubmitField, validators
-from passlib.apps import custom_app_context as pwd_context
 from flask import session
 
 class LoginForm(Form):
@@ -54,13 +53,36 @@ class User(UserMixin):
         return self.username
 
     def verify_password(self, password):
-        return pwd_context.verify(password, self.token)
+        return guess(self.username, password)
 
     @classmethod
     def new_user(cls, username, password):
-        token = pwd_context.encrypt(password) #hash password and convert into token
+        token = get_token(password)
         return cls(username, token)
 
+def get_token(password):
+    url = 'http://restapi:5000/token/' + password
+    r = requests.get(url)
+    #check if user exists
+    j = r.json()
+    app.logger.debug("&"*50)
+    app.logger.debug("get_token: %r",j)
+    app.logger.debug("&"*50)
+    if not j and 'token' not in j:
+        raise Exception("Panic") 
+    return j['token']
+
+def guess(username, password):
+    url = 'http://restapi:5000/guess/' + username + "/" + password
+    r = requests.get(url)
+    #check if user exists
+    j = r.json()
+    app.logger.debug("&"*50)
+    app.logger.debug("guess: %r",j)
+    app.logger.debug("&"*50)
+    if not j and 'result' not in j:
+        raise Exception("Panic") 
+    return j['result']
 
 app = Flask(__name__)
 app.secret_key = "hello123#$5!"
@@ -84,12 +106,7 @@ def load_user(username):
     url = 'http://restapi:5000/getUser/' + username
     r = requests.get(url)
     #check if user exists
-    app.logger.debug("*"*50)
-    app.logger.debug(r.text)
-    app.logger.debug("*"*50)
     j = r.json()
-    app.logger.debug(type(j))
-    app.logger.debug(j)
     if not j: 
         return None
     app.logger.debug('username: %s, type: %s', username, type(username))
@@ -206,7 +223,7 @@ def register():
     return flask.render_template('register.html', form=form)
 
 def create_user(user):
-    url = 'http://restapi:5000/createUser/'
+    url = 'http://restapi:5000/register/'
     r = requests.post(url, {"username": user.username, "token": user.token})
 
 @app.route("/logout")
